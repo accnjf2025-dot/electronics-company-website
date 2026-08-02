@@ -1,0 +1,68 @@
+import type { Partner } from '@/types'
+
+export const partners: Partner[] = [
+  {
+    id: 'partner-aswar',
+    name: 'ASWAR',
+    logo: '/images/partners/aswar.png',
+    website: '',
+    descriptionAr: 'شريك في حلول الأمن والمراقبة',
+    descriptionEn: 'Partner in security and surveillance solutions',
+  },
+  {
+    id: 'partner-hikvision',
+    name: 'Hikvision',
+    logo: '/images/partners/hikvision.png',
+    website: 'https://www.hikvision.com',
+    descriptionAr: 'أنظمة مراقبة وكاميرات أمنية',
+    descriptionEn: 'Surveillance and security camera systems',
+  },
+  {
+    id: 'partner-dahua',
+    name: 'Dahua',
+    logo: '/images/partners/dahua.png',
+    website: 'https://www.dahuasecurity.com',
+    descriptionAr: 'حلول مراقبة وتقنيات أمنية',
+    descriptionEn: 'Surveillance and security technology solutions',
+  },
+  {
+    id: 'partner-samsung',
+    name: 'Samsung',
+    logo: '/images/partners/samsung.png',
+    website: 'https://www.samsung.com',
+    descriptionAr: 'أجهزة وشاشات وتقنيات متعددة',
+    descriptionEn: 'Devices, displays, and diverse technologies',
+  },
+  {
+    id: 'partner-lenovo',
+    name: 'Lenovo',
+    logo: '/images/partners/lenovo.png',
+    website: 'https://www.lenovo.com',
+    descriptionAr: 'أجهزة كمبيوتر وحلول تقنية',
+    descriptionEn: 'Computers and technology solutions',
+  },
+  {
+    id: 'partner-hytera',
+    name: 'Hytera',
+    logo: '/images/partners/hytera.png',
+    website: 'https://www.hytera.com',
+    descriptionAr: 'أجهزة اتصال لاسلكي احترافية',
+    descriptionEn: 'Professional two-way radio communications',
+  },
+  {
+    id: 'partner-motorola',
+    name: 'Motorola',
+    logo: '/images/partners/motorola.png',
+    website: 'https://www.motorola.com',
+    descriptionAr: 'اتصالات لاسلكية وأجهزة موثوقة',
+    descriptionEn: 'Wireless communications and reliable devices',
+  },
+  {
+    id: 'partner-tplink',
+    name: 'TP-Link',
+    logo: '/images/partners/tp-link.png',
+    website: 'https://www.tp-link.com',
+    descriptionAr: 'حلول شبكات وإنترنت',
+    descriptionEn: 'Networking and internet solutions',
+  },
+]
