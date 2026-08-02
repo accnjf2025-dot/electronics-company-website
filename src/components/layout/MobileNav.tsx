@@ -2,7 +2,7 @@ import { X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
 import { LanguageSwitcher } from '@/components/common'
-import { companyProfile } from '@/data/company'
+import { useCompanyContent } from '@/hooks/useCompanyContent'
 import { getNavItems, useTranslation } from '@/utils'
 
 interface MobileNavProps {
@@ -12,6 +12,7 @@ interface MobileNavProps {
 
 export function MobileNav({ isOpen, onClose }: MobileNavProps) {
   const { t, locale } = useTranslation()
+  const { name, phone, address } = useCompanyContent()
   const location = useLocation()
   const navItems = getNavItems(locale)
 
@@ -41,7 +42,7 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
             aria-label={t.nav.mainNav}
           >
             <div className="flex items-center justify-between border-b border-surface-200 px-6 py-4">
-              <span className="text-base font-bold text-brand-navy">{t.company.name}</span>
+              <span className="text-base font-bold text-brand-navy">{name || t.company.name}</span>
               <button
                 type="button"
                 onClick={onClose}
@@ -80,8 +81,10 @@ export function MobileNav({ isOpen, onClose }: MobileNavProps) {
             </ul>
 
             <div className="border-t border-surface-200 px-6 py-4">
-              <p className="text-sm text-text-muted">{companyProfile.phone}</p>
-              <p className="text-sm text-text-muted">{t.company.address}</p>
+              {phone && <p className="text-sm text-text-muted">{phone}</p>}
+              {(address || t.company.address) && (
+                <p className="text-sm text-text-muted">{address || t.company.address}</p>
+              )}
             </div>
           </motion.nav>
         </>

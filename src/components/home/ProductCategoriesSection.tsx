@@ -19,7 +19,7 @@ export function ProductCategoriesSection() {
           actionLabel={t.common.viewAll}
           actionTo={ROUTES.products}
         />
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+        <div className="grid gap-4 min-[480px]:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {productCategories.map((category, index) => (
             <motion.div
               key={category.id}
@@ -27,6 +27,7 @@ export function ProductCategoriesSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-40px' }}
               transition={{ duration: 0.4, delay: index * 0.05 }}
+              className="min-w-0"
             >
               <CategoryCard category={category} />
             </motion.div>

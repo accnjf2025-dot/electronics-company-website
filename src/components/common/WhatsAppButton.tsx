@@ -1,15 +1,18 @@
 import { motion } from 'framer-motion'
-import { companyProfile } from '@/data/company'
+import { useCompanyContent } from '@/hooks/useCompanyContent'
 import { useTranslation } from '@/utils'
+import { externalLinkProps } from '@/utils/corporate'
 
 export function WhatsAppButton() {
   const { t } = useTranslation()
+  const { whatsappUrl } = useCompanyContent()
+
+  if (!whatsappUrl) return null
 
   return (
     <motion.a
-      href={companyProfile.whatsappUrl}
-      target="_blank"
-      rel="noopener noreferrer"
+      href={whatsappUrl}
+      {...externalLinkProps}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ delay: 0.3, duration: 0.3 }}

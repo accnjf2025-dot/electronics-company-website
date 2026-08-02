@@ -1,62 +1,55 @@
 import { motion } from 'framer-motion'
-import { SectionHeader, ImageWithFallback } from '@/components/common'
-import { partners } from '@/data'
+import { SectionHeader } from '@/components/common'
+import { CorporatePartnerGridSkeleton, PartnerCard } from '@/components/corporate'
+import { useFeaturedPartners } from '@/hooks/api'
 import { ROUTES } from '@/routes/paths'
-import { pickLocalized, useTranslation } from '@/utils'
+import { useTranslation } from '@/utils'
 
 export function PartnersSection() {
-  const { t, locale } = useTranslation()
+  const { t } = useTranslation()
   const section = t.home.partners
+  const { partners, loading, hasPartners } = useFeaturedPartners(8)
+
+  if (!loading && !hasPartners) return null
 
   return (
-    <section className="section-padding bg-surface-50">
+    <section className="section-padding bg-[#f3f6fb]">
       <div className="container-main">
-        <SectionHeader
-          label={section.label}
-          title={section.heading}
-          subtitle={section.subtitle}
-          actionLabel={t.common.viewAll}
-          actionTo={ROUTES.partners}
-          align="center"
-        />
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-          {partners.map((partner, index) => {
-            const Wrapper = partner.website ? 'a' : 'div'
-            const linkProps = partner.website
-              ? { href: partner.website, target: '_blank', rel: 'noopener noreferrer' }
-              : {}
-
-            return (
-              <motion.div
-                key={partner.id}
-                initial={{ opacity: 0, y: 12 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.3, delay: index * 0.05 }}
-              >
-                <Wrapper
-                  {...linkProps}
-                  className="group flex flex-col items-center justify-center rounded-xl border border-surface-200 bg-white px-4 py-6 shadow-soft transition-all hover:-translate-y-0.5 hover:border-brand-yellow/30 hover:shadow-card"
-                  aria-label={partner.name}
-                >
-                  <div className="flex h-10 w-full items-center justify-center grayscale transition-all group-hover:grayscale-0">
-                    <ImageWithFallback
-                      src={partner.logo}
-                      alt={partner.name}
-                      className="max-h-8 max-w-full object-contain opacity-70 transition-opacity group-hover:opacity-100"
-                    />
-                  </div>
-                  <span className="mt-3 text-center text-xs font-semibold text-text-muted transition-colors group-hover:text-brand-navy">
-                    {partner.name}
-                  </span>
-                  <span className="mt-1 line-clamp-2 text-center text-[11px] text-text-muted">
-                    {pickLocalized(partner, 'description', locale)}
-                  </span>
-                </Wrapper>
-              </motion.div>
-            )
-          })}
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-brand-blue/20 to-transparent" aria-hidden="true" />
+          <SectionHeader
+            label={section.label}
+            title={section.heading}
+            subtitle={section.subtitle}
+            actionLabel={t.common.viewAll}
+            actionTo={ROUTES.partners}
+            align="center"
+          />
         </div>
+
+        {loading ? (
+          <CorporatePartnerGridSkeleton count={8} variant="homepage" />
+        ) : (
+          <>
+            <div className="grid grid-cols-2 gap-4 min-[480px]:gap-5 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
+              {partners.map((partner, index) => (
+                <motion.div
+                  key={partner.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="min-w-0"
+                >
+                  <PartnerCard partner={partner} variant="homepage" />
+                </motion.div>
+              ))}
+            </div>
+            {section.trustCaption && (
+              <p className="mt-8 text-center text-sm font-medium text-text-secondary">{section.trustCaption}</p>
+            )}
+          </>
+        )}
       </div>
     </section>
   )

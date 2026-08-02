@@ -1,28 +1,58 @@
 import { useState } from 'react'
 import {
   CategoryNav,
+  CategoryNavSkeleton,
   ProductGrid,
+  ProductGridSkeleton,
   ProductsEmptyState,
+  ProductsErrorState,
   ProductsFilterDrawer,
   ProductsFilters,
   ProductsPageHero,
   ProductsToolbar,
 } from '@/components/products'
+import { useBrandOptions, useProductCategories, useProducts } from '@/hooks/api'
 import { useProductFilters } from '@/hooks'
 import { useTranslation } from '@/utils'
-import { getUniqueBrands } from '@/utils/products'
 
 export function ProductsPage() {
   const { t } = useTranslation()
-  const { filters, filteredProducts, setFilter, clearFilters } = useProductFilters()
+  const { filters, setFilter, clearFilters } = useProductFilters()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [filterResetKey, setFilterResetKey] = useState(0)
-  const brands = getUniqueBrands()
+
+  const {
+    categories,
+    loading: categoriesLoading,
+    retry: retryCategories,
+  } = useProductCategories()
+  const {
+    brandNames,
+    resolveBrandSlug,
+    retry: retryBrands,
+  } = useBrandOptions()
+  const {
+    products,
+    count,
+    loading: productsLoading,
+    error: productsError,
+    retry: retryProducts,
+  } = useProducts({ filters, resolveBrandSlug })
 
   const handleClearFilters = () => {
     clearFilters()
     setFilterResetKey((key) => key + 1)
   }
+
+  const handleRetryAll = () => {
+    retryCategories()
+    retryBrands()
+    retryProducts()
+  }
+
+  const showGridSkeleton = productsLoading && products.length === 0
+  const showCategorySkeleton = categoriesLoading && categories.length === 0
+  const resultCount = productsLoading ? 0 : count
 
   return (
     <>
@@ -30,10 +60,15 @@ export function ProductsPage() {
 
       <section className="overflow-x-hidden bg-surface-50">
         <div className="container-main px-4 py-8 sm:px-6 md:py-10 lg:px-8">
-          <CategoryNav
-            filters={filters}
-            onCategoryChange={(slug) => setFilter('category', slug)}
-          />
+          {showCategorySkeleton ? (
+            <CategoryNavSkeleton />
+          ) : (
+            <CategoryNav
+              filters={filters}
+              categories={categories}
+              onCategoryChange={(slug) => setFilter('category', slug)}
+            />
+          )}
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-[minmax(230px,260px)_minmax(0,1fr)] lg:gap-8">
             <aside className="hidden min-w-0 lg:block">
@@ -43,7 +78,7 @@ export function ProductsPage() {
                 </h2>
                 <ProductsFilters
                   filters={filters}
-                  brands={brands}
+                  brands={brandNames}
                   onFilterChange={setFilter}
                   onClearFilters={handleClearFilters}
                 />
@@ -53,17 +88,26 @@ export function ProductsPage() {
             <div className="min-w-0">
               <ProductsToolbar
                 filters={filters}
-                resultCount={filteredProducts.length}
+                resultCount={resultCount}
                 onSearchChange={(search) => setFilter('search', search)}
                 onSortChange={(sort) => setFilter('sort', sort)}
                 onOpenFilters={() => setDrawerOpen(true)}
                 resetKey={filterResetKey}
               />
 
-              {filteredProducts.length === 0 ? (
+              {productsError ? (
+                <ProductsErrorState
+                  title={t.catalog.apiLoadError}
+                  description={t.catalog.apiConnectionError}
+                  retryLabel={t.catalog.tryAgain}
+                  onRetry={handleRetryAll}
+                />
+              ) : showGridSkeleton ? (
+                <ProductGridSkeleton />
+              ) : products.length === 0 ? (
                 <ProductsEmptyState onClearFilters={handleClearFilters} />
               ) : (
-                <ProductGrid products={filteredProducts} />
+                <ProductGrid products={products} />
               )}
             </div>
           </div>
@@ -73,7 +117,7 @@ export function ProductsPage() {
       <ProductsFilterDrawer
         open={drawerOpen}
         filters={filters}
-        brands={brands}
+        brands={brandNames}
         onClose={() => setDrawerOpen(false)}
         onFilterChange={setFilter}
         onClearFilters={handleClearFilters}

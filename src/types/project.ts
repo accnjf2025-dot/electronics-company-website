@@ -8,6 +8,7 @@ export interface Project {
   titleEn: string
   slug: string
   categoryId: string
+  categorySlug?: string
   categoryNameAr: string
   categoryNameEn: string
   clientNameAr?: string

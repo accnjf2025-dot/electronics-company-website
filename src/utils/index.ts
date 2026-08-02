@@ -1,2 +1,2 @@
-export { t, getNavItems, pickLocalized, useTranslation, useLocale } from './i18n'
+export { t, getNavItems, pickLocalized, pickProjectTitle, useTranslation, useLocale } from './i18n'
 export { formatPrice, formatDate } from './format'

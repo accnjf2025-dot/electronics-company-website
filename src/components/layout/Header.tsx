@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Menu } from 'lucide-react'
 import { Logo, LanguageSwitcher } from '@/components/common'
+import { useCompanyContent } from '@/hooks/useCompanyContent'
 import { getNavItems, useTranslation } from '@/utils'
 import { MobileNav } from './MobileNav'
 
 export function Header() {
   const { t, locale } = useTranslation()
+  const { name: companyName } = useCompanyContent()
   const location = useLocation()
   const navItems = getNavItems(locale)
   const [isMobileNavOpen, setIsMobileNavOpen] = useState(false)
@@ -19,7 +21,7 @@ export function Header() {
             <Link
               to="/"
               className="flex shrink-0 items-center transition-opacity hover:opacity-90 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow"
-              aria-label={t.company.name}
+              aria-label={companyName || t.company.name}
             >
               <Logo variant="header" />
             </Link>

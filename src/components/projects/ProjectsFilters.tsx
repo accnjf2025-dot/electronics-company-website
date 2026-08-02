@@ -1,10 +1,11 @@
 import type { ReactNode } from 'react'
-import { projectCategories } from '@/data/projectCategories'
+import type { ProjectCategory } from '@/types'
 import type { ProjectFilterState, ProjectSortOption } from '@/utils/projectPortfolio'
 import { pickLocalized, useTranslation } from '@/utils'
 
 interface ProjectsFiltersProps {
   filters: ProjectFilterState
+  categories: ProjectCategory[]
   locationOptions: { value: string; labelAr: string; labelEn: string }[]
   onFilterChange: <K extends keyof ProjectFilterState>(
     key: K,
@@ -47,6 +48,7 @@ function FilterSelect({
 
 export function ProjectsFilters({
   filters,
+  categories,
   locationOptions,
   onFilterChange,
   onClearFilters,
@@ -70,7 +72,7 @@ export function ProjectsFilters({
         onChange={(v) => onFilterChange('category', v)}
       >
         <option value="">{t.projectsCatalog.allCategories}</option>
-        {projectCategories.map((category) => (
+        {categories.map((category) => (
           <option key={category.id} value={category.slug}>
             {pickLocalized(category, 'name', locale)}
           </option>

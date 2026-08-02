@@ -1,24 +1,69 @@
 import { Link, useParams } from 'react-router-dom'
 import {
   ProjectContactCta,
+  ProjectDetailsSkeleton,
   ProjectGallery,
   ProjectHeader,
   ProjectOverview,
   ProjectSections,
   ProjectServices,
   ProjectsBreadcrumb,
+  ProjectsErrorState,
   RelatedProjects,
 } from '@/components/projects'
-import { getProjectBySlug } from '@/data'
+import { useProject } from '@/hooks/api'
 import { ROUTES } from '@/routes/paths'
-import { pickLocalized, useTranslation } from '@/utils'
+import { pickLocalized, pickProjectTitle, useTranslation } from '@/utils'
 
 export function ProjectDetailsPage() {
   const { t, locale } = useTranslation()
   const { projectSlug } = useParams<{ projectSlug: string }>()
-  const project = projectSlug ? getProjectBySlug(projectSlug) : undefined
+  const { project, loading, error, notFound, retry } = useProject(projectSlug)
 
-  if (!project) {
+  if (loading) {
+    return (
+      <>
+        <section className="gradient-navy text-white">
+          <div className="container-main px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
+            <div className="max-w-4xl animate-pulse">
+              <div className="h-4 w-40 rounded bg-white/20" />
+            </div>
+          </div>
+        </section>
+        <section className="overflow-x-hidden bg-surface-50">
+          <div className="container-main px-4 py-6 sm:px-6 md:py-8 lg:px-8">
+            <div className="mx-auto max-w-6xl">
+              <ProjectDetailsSkeleton />
+            </div>
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  if (error) {
+    return (
+      <>
+        <section className="gradient-navy text-white">
+          <div className="container-main px-4 py-6 sm:px-6 lg:px-8">
+            <h1 className="text-xl font-bold text-white md:text-2xl">{t.pages.projectDetails.title}</h1>
+          </div>
+        </section>
+        <section className="bg-surface-50">
+          <div className="container-main px-4 py-10 sm:px-6 lg:px-8">
+            <ProjectsErrorState
+              title={t.projectsCatalog.apiLoadError}
+              description={t.projectsCatalog.apiConnectionError}
+              retryLabel={t.projectsCatalog.tryAgain}
+              onRetry={retry}
+            />
+          </div>
+        </section>
+      </>
+    )
+  }
+
+  if (!project || notFound) {
     return (
       <>
         <section className="gradient-navy text-white">
@@ -43,6 +88,7 @@ export function ProjectDetailsPage() {
 
   const pageUrl = `${window.location.origin}${ROUTES.projectDetails(project.slug)}`
   const category = pickLocalized(project, 'categoryName', locale)
+  const pageTitle = pickProjectTitle(project, locale)
   const galleryImages = [...new Set([project.coverImage, ...project.gallery].filter(Boolean))]
   const showGallery = galleryImages.length > 1
 
@@ -50,7 +96,7 @@ export function ProjectDetailsPage() {
     <>
       <section className="gradient-navy text-white">
         <div className="container-main px-4 py-4 sm:px-6 sm:py-5 lg:px-8">
-          <ProjectsBreadcrumb />
+          <ProjectsBreadcrumb current={pageTitle} />
           <p className="mt-2 text-sm text-white/75">{category}</p>
         </div>
       </section>

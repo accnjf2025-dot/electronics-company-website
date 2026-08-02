@@ -3,7 +3,7 @@ import type { Locale } from '@/data/translations'
 import { companyProfile } from '@/data/company'
 import { projects } from '@/data/projects'
 import { getProjectCategoryBySlug } from '@/data/projectCategories'
-import { pickLocalized } from '@/utils/localized'
+import { pickLocalized, pickProjectTitle } from '@/utils/localized'
 
 export type ProjectSortOption = 'newest' | 'oldest' | 'name'
 
@@ -130,7 +130,7 @@ export function buildWhatsAppProjectInquiryUrl(
   locale: Locale,
   pageUrl: string,
 ): string {
-  const title = pickLocalized(project, 'title', locale)
+  const title = pickProjectTitle(project, locale)
   const message =
     locale === 'ar'
       ? `مرحبًا، أود الاستفسار عن مشروع: ${title}\n${pageUrl}`

@@ -5,4 +5,6 @@ export interface Partner {
   website: string
   descriptionAr: string
   descriptionEn: string
+  isFeatured?: boolean
+  displayOrder?: number
 }

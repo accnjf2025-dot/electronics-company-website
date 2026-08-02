@@ -1,25 +1,37 @@
 import { Link } from 'react-router-dom'
 import { ClipboardList, Ear, Headphones, Package, Settings, TrendingUp } from 'lucide-react'
 import {
+  CorporateErrorState,
   CorporatePageHero,
   CorporateSectionHeader,
+  CorporateSectionSkeleton,
   ValueCard,
 } from '@/components/corporate'
-import { companyProfile } from '@/data/company'
-import { ROUTES } from '@/routes/paths'
 import { ImageWithFallback } from '@/components/common'
+import { useCompanyContent } from '@/hooks/useCompanyContent'
+import { ROUTES } from '@/routes/paths'
 import { useTranslation } from '@/utils'
 
 const definesIcons = [Ear, Package, Settings, TrendingUp]
 const approachIcons = [Ear, ClipboardList, Package, Settings, Headphones]
 
 export function StoryPage() {
-  const { t, locale } = useTranslation()
+  const { t } = useTranslation()
   const story = t.corporate.story
-  const paragraphs = t.story.content.split('\n\n')
+  const {
+    story: storyContent,
+    tagline,
+    logoPath,
+    logoAlt,
+    loading,
+    error,
+    hasCompany,
+    retry,
+  } = useCompanyContent()
+
+  const paragraphs = storyContent ? storyContent.split('\n\n').filter(Boolean) : []
   const lead = paragraphs[0] ?? ''
   const rest = paragraphs.slice(1)
-  const logoAlt = locale === 'ar' ? companyProfile.logoAltAr : companyProfile.logoAltEn
 
   return (
     <>
@@ -27,28 +39,51 @@ export function StoryPage() {
 
       <section className="overflow-x-hidden bg-surface-50 py-10 md:py-12">
         <div className="container-main mx-auto max-w-6xl space-y-10 md:space-y-12">
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-start">
-            <article className="rounded-xl border border-surface-200 bg-white p-6 shadow-soft md:p-8">
-              <p className="text-lg font-medium leading-relaxed text-brand-navy md:text-xl">{lead}</p>
-              {rest.map((paragraph) => (
-                <p key={paragraph.slice(0, 40)} className="mt-5 text-sm leading-[1.75] text-text-secondary md:text-base">
-                  {paragraph}
-                </p>
-              ))}
-            </article>
+          {error && !hasCompany && !loading ? (
+            <CorporateErrorState
+              title={t.corporate.companyUnavailableTitle}
+              description={t.corporate.companyUnavailableDescription}
+              retryLabel={t.corporate.tryAgain}
+              onRetry={retry}
+            />
+          ) : (
+            <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_240px] lg:items-start">
+              <article className="rounded-xl border border-surface-200 bg-white p-6 shadow-soft md:p-8">
+                {loading ? (
+                  <CorporateSectionSkeleton rows={4} />
+                ) : (
+                  <>
+                    {lead && (
+                      <p className="text-lg font-medium leading-relaxed text-brand-navy md:text-xl">{lead}</p>
+                    )}
+                    {rest.map((paragraph) => (
+                      <p
+                        key={paragraph.slice(0, 40)}
+                        className="mt-5 text-sm leading-[1.75] text-text-secondary md:text-base"
+                      >
+                        {paragraph}
+                      </p>
+                    ))}
+                    {!lead && !rest.length && (
+                      <p className="text-sm text-text-secondary">{t.common.placeholderDescription}</p>
+                    )}
+                  </>
+                )}
+              </article>
 
-            <aside className="hidden lg:block">
-              <div className="sticky top-24 rounded-xl border border-brand-navy/10 bg-brand-navy p-6 text-center shadow-soft">
-                <ImageWithFallback
-                  src={companyProfile.logoPath}
-                  alt={logoAlt}
-                  className="mx-auto max-h-14 object-contain"
-                />
-                <div className="mt-4 h-px bg-white/15" aria-hidden="true" />
-                <p className="mt-4 text-sm leading-relaxed text-white/70">{t.company.tagline}</p>
-              </div>
-            </aside>
-          </div>
+              <aside className="hidden lg:block">
+                <div className="sticky top-24 rounded-xl border border-brand-navy/10 bg-brand-navy p-6 text-center shadow-soft">
+                  <ImageWithFallback
+                    src={logoPath}
+                    alt={logoAlt}
+                    className="mx-auto max-h-14 object-contain"
+                  />
+                  <div className="mt-4 h-px bg-white/15" aria-hidden="true" />
+                  {tagline && <p className="mt-4 text-sm leading-relaxed text-white/70">{tagline}</p>}
+                </div>
+              </aside>
+            </div>
+          )}
 
           <div>
             <CorporateSectionHeader title={story.definesUsHeading} />

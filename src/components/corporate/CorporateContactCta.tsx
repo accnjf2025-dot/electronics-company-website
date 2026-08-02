@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MessageCircle } from 'lucide-react'
-import { companyProfile } from '@/data/company'
+import { useCompanyContent } from '@/hooks/useCompanyContent'
 import { ROUTES } from '@/routes/paths'
 import { externalLinkProps } from '@/utils/corporate'
 
@@ -19,6 +19,8 @@ export function CorporateContactCta({
   secondaryLabel,
   secondaryTo = ROUTES.contact,
 }: CorporateContactCtaProps) {
+  const { whatsappUrl } = useCompanyContent()
+
   return (
     <section className="rounded-xl border border-surface-200 bg-white p-6 shadow-soft md:p-8">
       <h2 className="text-xl font-bold text-brand-navy md:text-2xl">{heading}</h2>
@@ -28,14 +30,16 @@ export function CorporateContactCta({
         </p>
       )}
       <div className="mt-5 flex flex-wrap gap-3">
-        <a
-          href={companyProfile.whatsappUrl}
-          {...externalLinkProps}
-          className="inline-flex items-center gap-2 rounded-lg gradient-accent px-5 py-2.5 text-sm font-semibold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow"
-        >
-          <MessageCircle className="size-4" aria-hidden="true" />
-          {whatsappLabel}
-        </a>
+        {whatsappUrl && (
+          <a
+            href={whatsappUrl}
+            {...externalLinkProps}
+            className="inline-flex items-center gap-2 rounded-lg gradient-accent px-5 py-2.5 text-sm font-semibold text-brand-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow"
+          >
+            <MessageCircle className="size-4" aria-hidden="true" />
+            {whatsappLabel}
+          </a>
+        )}
         <Link
           to={secondaryTo}
           className="inline-flex items-center gap-2 rounded-lg border border-surface-200 bg-white px-5 py-2.5 text-sm font-semibold text-brand-navy transition-colors hover:border-brand-yellow/50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-yellow"

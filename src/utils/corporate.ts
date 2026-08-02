@@ -1,4 +1,3 @@
-import { companyProfile } from '@/data/company'
 import type { Locale } from '@/data/translations'
 
 export function buildWhatsAppContactUrl(params: {
@@ -7,14 +6,17 @@ export function buildWhatsAppContactUrl(params: {
   inquiryType: string
   message: string
   locale: Locale
+  whatsappUrl: string
 }): string {
-  const { name, phone, inquiryType, message, locale } = params
+  const { name, phone, inquiryType, message, locale, whatsappUrl } = params
+  if (!whatsappUrl) return ''
+
   const text =
     locale === 'ar'
       ? `الاسم: ${name}\nالهاتف: ${phone}\nنوع الاستفسار: ${inquiryType}\n\n${message}`
       : `Name: ${name}\nPhone: ${phone}\nInquiry type: ${inquiryType}\n\n${message}`
 
-  return `${companyProfile.whatsappUrl}?text=${encodeURIComponent(text)}`
+  return `${whatsappUrl}?text=${encodeURIComponent(text)}`
 }
 
 export const externalLinkProps = {

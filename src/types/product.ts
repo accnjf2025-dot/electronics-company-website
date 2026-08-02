@@ -20,6 +20,7 @@ export interface Product {
   nameEn: string
   slug: string
   categoryId: string
+  categorySlug?: string
   brand: string
   shortDescriptionAr: string
   shortDescriptionEn: string

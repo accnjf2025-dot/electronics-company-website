@@ -1,6 +1,6 @@
 import { Calendar, Layers, MapPin, User } from 'lucide-react'
 import type { Project } from '@/types'
-import { formatDate, pickLocalized, useTranslation } from '@/utils'
+import { formatDate, pickLocalized, pickProjectTitle, useTranslation } from '@/utils'
 import { getProjectClientLabel } from '@/utils/projectPortfolio'
 import { ImageWithFallback } from '@/components/common'
 
@@ -14,7 +14,7 @@ function isPlaceholderImage(src: string): boolean {
 
 export function ProjectHeader({ project }: ProjectHeaderProps) {
   const { t, locale } = useTranslation()
-  const title = pickLocalized(project, 'title', locale)
+  const title = pickProjectTitle(project, locale)
   const category = pickLocalized(project, 'categoryName', locale)
   const location = pickLocalized(project, 'location', locale)
   const client = getProjectClientLabel(project, locale)

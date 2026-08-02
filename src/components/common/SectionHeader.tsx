@@ -45,7 +45,7 @@ export function SectionHeader({
               {label}
             </span>
           )}
-          <h2 className={`text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl ${titleColor}`}>
+          <h2 className={`text-2xl font-bold leading-snug tracking-tight md:text-3xl lg:text-4xl lg:leading-tight ${titleColor}`}>
             {title}
           </h2>
           {subtitle && (

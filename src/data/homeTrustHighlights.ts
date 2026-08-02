@@ -2,6 +2,10 @@ export interface TrustHighlight {
   id: string
   labelAr: string
   labelEn: string
+  valueAr?: string
+  valueEn?: string
+  supportingTextAr?: string
+  supportingTextEn?: string
   icon: 'users' | 'truck' | 'wrench' | 'credit-card'
 }
 

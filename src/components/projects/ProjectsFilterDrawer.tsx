@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { X } from 'lucide-react'
+import type { ProjectCategory } from '@/types'
 import type { ProjectFilterState } from '@/utils/projectPortfolio'
 import { useTranslation } from '@/utils'
 import { ProjectsFilters } from './ProjectsFilters'
@@ -7,6 +8,7 @@ import { ProjectsFilters } from './ProjectsFilters'
 interface ProjectsFilterDrawerProps {
   open: boolean
   filters: ProjectFilterState
+  categories: ProjectCategory[]
   locationOptions: { value: string; labelAr: string; labelEn: string }[]
   onClose: () => void
   onFilterChange: <K extends keyof ProjectFilterState>(
@@ -20,6 +22,7 @@ interface ProjectsFilterDrawerProps {
 export function ProjectsFilterDrawer({
   open,
   filters,
+  categories,
   locationOptions,
   onClose,
   onFilterChange,
@@ -79,6 +82,7 @@ export function ProjectsFilterDrawer({
         <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4">
           <ProjectsFilters
             filters={filters}
+            categories={categories}
             locationOptions={locationOptions}
             onFilterChange={onFilterChange}
             onClearFilters={onClearFilters}

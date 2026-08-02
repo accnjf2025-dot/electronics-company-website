@@ -1,14 +1,16 @@
 import { useEffect, useRef } from 'react'
-import { productCategories } from '@/data'
+import { productCategories as mockCategories } from '@/data'
+import type { ProductCategory } from '@/types'
 import { pickLocalized, useTranslation } from '@/utils'
 import type { ProductFilterState } from '@/utils/products'
 
 interface CategoryNavProps {
   filters: ProductFilterState
+  categories?: ProductCategory[]
   onCategoryChange: (slug: string) => void
 }
 
-export function CategoryNav({ filters, onCategoryChange }: CategoryNavProps) {
+export function CategoryNav({ filters, categories = mockCategories, onCategoryChange }: CategoryNavProps) {
   const { t, locale } = useTranslation()
   const scrollRef = useRef<HTMLDivElement>(null)
   const activeRef = useRef<HTMLButtonElement>(null)
@@ -44,7 +46,7 @@ export function CategoryNav({ filters, onCategoryChange }: CategoryNavProps) {
         >
           {t.catalog.allCategories}
         </button>
-        {productCategories.map((category) => {
+        {categories.map((category) => {
           const isActive = filters.category === category.slug
           return (
             <button

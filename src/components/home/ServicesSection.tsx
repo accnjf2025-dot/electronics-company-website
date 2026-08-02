@@ -1,13 +1,16 @@
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { SectionHeader } from '@/components/common'
-import { services } from '@/data'
+import { HomeServiceCard, HomeServiceGridSkeleton } from '@/components/home/HomeServiceCard'
+import { useFeaturedServices } from '@/hooks/api'
 import { ROUTES } from '@/routes/paths'
-import { pickLocalized, useTranslation } from '@/utils'
+import { useTranslation } from '@/utils'
 
 export function ServicesSection() {
-  const { t, locale } = useTranslation()
+  const { t } = useTranslation()
   const section = t.home.services
+  const { services, loading, hasServices } = useFeaturedServices(6)
+
+  if (!loading && !hasServices) return null
 
   return (
     <section className="section-padding bg-surface-50">
@@ -19,35 +22,24 @@ export function ServicesSection() {
           actionLabel={t.common.viewAll}
           actionTo={ROUTES.services}
         />
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {services.map((service, index) => {
-            const Icon = service.icon
-            return (
+        {loading ? (
+          <HomeServiceGridSkeleton count={6} />
+        ) : (
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {services.map((service, index) => (
               <motion.div
                 key={service.id}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: '-40px' }}
                 transition={{ duration: 0.4, delay: index * 0.06 }}
+                className="min-w-0"
               >
-                <Link
-                  to={ROUTES.services}
-                  className="group flex h-full flex-col rounded-xl border border-surface-200 bg-white p-6 shadow-soft transition-all hover:-translate-y-1 hover:border-brand-yellow/40 hover:shadow-card"
-                >
-                  <div className="mb-4 flex size-11 items-center justify-center rounded-lg bg-brand-navy text-brand-yellow">
-                    <Icon className="size-5" aria-hidden="true" />
-                  </div>
-                  <h3 className="text-base font-bold text-brand-navy md:text-lg">
-                    {pickLocalized(service, 'title', locale)}
-                  </h3>
-                  <p className="mt-2 flex-1 text-sm leading-relaxed text-text-secondary">
-                    {pickLocalized(service, 'description', locale)}
-                  </p>
-                </Link>
+                <HomeServiceCard service={service} />
               </motion.div>
-            )
-          })}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

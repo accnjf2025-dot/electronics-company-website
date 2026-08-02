@@ -1,17 +1,20 @@
 import { motion } from 'framer-motion'
 import {
+  CorporateCardGridSkeleton,
   CorporateContactCta,
+  CorporateErrorState,
   CorporatePageHero,
   CorporateSectionHeader,
   ProcessSteps,
   ServiceCard,
 } from '@/components/corporate'
-import { services } from '@/data'
+import { useServices } from '@/hooks/api'
 import { useTranslation } from '@/utils'
 
 export function ServicesPage() {
   const { t } = useTranslation()
   const copy = t.corporate.services
+  const { services, loading, error, hasServices, retry } = useServices()
 
   return (
     <>
@@ -35,19 +38,37 @@ export function ServicesPage() {
 
           <div className="mx-auto max-w-6xl">
             <CorporateSectionHeader title={t.common.ourServices} />
-            <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
-              {services.map((service, index) => (
-                <motion.div
-                  key={service.id}
-                  initial={{ opacity: 0, y: 12 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: '-40px' }}
-                  transition={{ duration: 0.35, delay: index * 0.05 }}
-                >
-                  <ServiceCard service={service} variant={index % 3 === 0 ? 'featured' : 'default'} />
-                </motion.div>
-              ))}
-            </div>
+            {error ? (
+              <CorporateErrorState
+                title={t.corporate.apiLoadServicesError}
+                description={t.corporate.apiConnectionError}
+                retryLabel={t.corporate.tryAgain}
+                onRetry={retry}
+              />
+            ) : loading ? (
+              <div className="mt-6">
+                <CorporateCardGridSkeleton count={6} />
+              </div>
+            ) : !hasServices ? (
+              <div className="mt-6 rounded-xl border border-surface-200 bg-white p-8 text-center shadow-soft">
+                <h2 className="text-lg font-bold text-brand-navy">{t.corporate.servicesEmptyTitle}</h2>
+                <p className="mt-2 text-sm text-text-secondary">{t.corporate.servicesEmptyDescription}</p>
+              </div>
+            ) : (
+              <div className="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                {services.map((service, index) => (
+                  <motion.div
+                    key={service.id}
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-40px' }}
+                    transition={{ duration: 0.35, delay: index * 0.05 }}
+                  >
+                    <ServiceCard service={service} variant={index % 3 === 0 ? 'featured' : 'default'} />
+                  </motion.div>
+                ))}
+              </div>
+            )}
           </div>
 
           <div className="mx-auto max-w-6xl">

@@ -1,9 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { projects } from '@/data/projects'
 import {
   DEFAULT_PROJECT_FILTERS,
-  filterProjects,
   projectFiltersToParams,
   parseProjectFiltersFromParams,
   type ProjectFilterState,
@@ -15,11 +13,6 @@ export function useProjectFilters() {
   const filters = useMemo(
     () => parseProjectFiltersFromParams(searchParams),
     [searchParams],
-  )
-
-  const filteredProjects = useMemo(
-    () => filterProjects(projects, filters),
-    [filters],
   )
 
   const updateFilters = useCallback(
@@ -47,7 +40,6 @@ export function useProjectFilters() {
 
   return {
     filters,
-    filteredProjects,
     updateFilters,
     setFilter,
     clearFilters,

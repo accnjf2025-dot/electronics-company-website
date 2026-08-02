@@ -1,4 +1,3 @@
-import type { LucideIcon } from 'lucide-react'
 import {
   Speaker,
   Camera,
@@ -7,17 +6,9 @@ import {
   Lock,
   Home,
 } from 'lucide-react'
+import type { Service } from '@/types/service'
 
-export interface Service {
-  id: string
-  titleAr: string
-  titleEn: string
-  descriptionAr: string
-  descriptionEn: string
-  includesAr: string[]
-  includesEn: string[]
-  icon: LucideIcon
-}
+export type { Service }
 
 export const services: Service[] = [
   {

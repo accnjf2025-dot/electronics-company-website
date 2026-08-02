@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Calendar, MapPin } from 'lucide-react'
 import type { Project } from '@/types'
 import { ROUTES } from '@/routes/paths'
-import { formatDate, pickLocalized, useTranslation } from '@/utils'
+import { formatDate, pickLocalized, pickProjectTitle, useTranslation } from '@/utils'
 import { DirectionalArrow, ImageWithFallback } from '@/components/common'
 
 interface ProjectCardProps {
@@ -15,7 +15,7 @@ function isPlaceholderImage(src: string): boolean {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const { t, locale } = useTranslation()
-  const title = pickLocalized(project, 'title', locale)
+  const title = pickProjectTitle(project, locale)
   const shortDescription = pickLocalized(project, 'shortDescription', locale)
   const category = pickLocalized(project, 'categoryName', locale)
   const locationLabel = pickLocalized(project, 'location', locale)

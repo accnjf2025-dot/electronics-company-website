@@ -1,17 +1,20 @@
 import { motion } from 'framer-motion'
 import {
   CorporateContactCta,
+  CorporateErrorState,
   CorporatePageHero,
+  CorporatePartnerGridSkeleton,
   CorporateSectionHeader,
   PartnerCard,
 } from '@/components/corporate'
-import { partners } from '@/data'
+import { usePartners } from '@/hooks/api'
 import { ROUTES } from '@/routes/paths'
 import { useTranslation } from '@/utils'
 
 export function PartnersPage() {
   const { t } = useTranslation()
   const copy = t.corporate.partners
+  const { partners, loading, error, hasPartners, retry } = usePartners()
 
   return (
     <>
@@ -19,19 +22,36 @@ export function PartnersPage() {
 
       <section className="overflow-x-hidden bg-surface-50 py-10 md:py-12">
         <div className="container-main mx-auto max-w-6xl space-y-10 md:space-y-12">
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {partners.map((partner, index) => (
-              <motion.div
-                key={partner.id}
-                initial={{ opacity: 0, y: 10 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-40px' }}
-                transition={{ duration: 0.3, delay: index * 0.04 }}
-              >
-                <PartnerCard partner={partner} />
-              </motion.div>
-            ))}
-          </div>
+          {error ? (
+            <CorporateErrorState
+              title={t.corporate.apiLoadPartnersError}
+              description={t.corporate.apiConnectionError}
+              retryLabel={t.corporate.tryAgain}
+              onRetry={retry}
+            />
+          ) : loading ? (
+            <CorporatePartnerGridSkeleton count={8} variant="page" />
+          ) : !hasPartners ? (
+            <div className="rounded-xl border border-surface-200 bg-white p-8 text-center shadow-soft">
+              <h2 className="text-lg font-bold text-brand-navy">{t.corporate.partnersEmptyTitle}</h2>
+              <p className="mt-2 text-sm text-text-secondary">{t.corporate.partnersEmptyDescription}</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 gap-5 min-[480px]:grid-cols-2 sm:gap-6 lg:grid-cols-3 xl:grid-cols-4">
+              {partners.map((partner, index) => (
+                <motion.div
+                  key={partner.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-40px' }}
+                  transition={{ duration: 0.3, delay: index * 0.04 }}
+                  className="min-w-0"
+                >
+                  <PartnerCard partner={partner} variant="page" />
+                </motion.div>
+              ))}
+            </div>
+          )}
 
           <div>
             <CorporateSectionHeader title={copy.categoriesHeading} align="center" />

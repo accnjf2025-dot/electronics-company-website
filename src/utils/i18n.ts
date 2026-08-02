@@ -20,5 +20,5 @@ export function getNavItems(locale: Locale = defaultLocale) {
   ]
 }
 
-export { pickLocalized } from './localized'
+export { pickLocalized, pickProjectTitle } from './localized'
 export { useLocale, useTranslation } from '@/hooks/useTranslation'

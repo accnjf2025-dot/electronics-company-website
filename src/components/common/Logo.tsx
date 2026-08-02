@@ -1,6 +1,5 @@
 import { useState } from 'react'
-import { companyProfile } from '@/data/company'
-import { useTranslation } from '@/utils'
+import { useCompanyContent } from '@/hooks/useCompanyContent'
 
 const FALLBACK_SRC = '/images/placeholder.svg'
 
@@ -20,10 +19,9 @@ const imageScale = {
 } as const
 
 export function Logo({ variant = 'header', className = '' }: LogoProps) {
-  const { locale } = useTranslation()
+  const { logoPath, logoAlt } = useCompanyContent()
   const [hasError, setHasError] = useState(false)
-  const src = hasError ? FALLBACK_SRC : companyProfile.logoPath
-  const altText = locale === 'ar' ? companyProfile.logoAltAr : companyProfile.logoAltEn
+  const src = hasError ? FALLBACK_SRC : logoPath
   const isHeader = variant === 'header'
 
   return (
@@ -32,7 +30,7 @@ export function Logo({ variant = 'header', className = '' }: LogoProps) {
     >
       <img
         src={src}
-        alt={isHeader ? '' : altText}
+        alt={isHeader ? '' : logoAlt}
         aria-hidden={isHeader && !hasError ? true : undefined}
         className={`h-full w-full max-w-none object-contain object-center ${imageScale[variant]}`}
         onError={() => setHasError(true)}

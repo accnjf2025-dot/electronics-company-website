@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { MessageCircle } from 'lucide-react'
+import { useCompanyContent } from '@/hooks/useCompanyContent'
 import { useTranslation } from '@/utils'
 import { buildWhatsAppContactUrl } from '@/utils/corporate'
 
@@ -12,6 +13,7 @@ interface FormErrors {
 
 export function ContactForm() {
   const { t, locale } = useTranslation()
+  const { whatsappUrl } = useCompanyContent()
   const form = t.corporate.contact
   const [name, setName] = useState('')
   const [phone, setPhone] = useState('')
@@ -40,7 +42,12 @@ export function ContactForm() {
       return
     }
 
-    const url = buildWhatsAppContactUrl({ name, phone, inquiryType, message, locale })
+    if (!whatsappUrl) {
+      setFormError(t.contact.chatWhatsapp)
+      return
+    }
+
+    const url = buildWhatsAppContactUrl({ name, phone, inquiryType, message, locale, whatsappUrl })
     window.open(url, '_blank', 'noopener,noreferrer')
   }
 

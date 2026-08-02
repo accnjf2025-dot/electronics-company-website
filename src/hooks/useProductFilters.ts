@@ -1,9 +1,7 @@
 import { useCallback, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
-import { products } from '@/data'
 import {
   DEFAULT_FILTERS,
-  filterProducts,
   filtersToParams,
   parseFiltersFromParams,
   type ProductFilterState,
@@ -15,11 +13,6 @@ export function useProductFilters() {
   const filters = useMemo(
     () => parseFiltersFromParams(searchParams),
     [searchParams],
-  )
-
-  const filteredProducts = useMemo(
-    () => filterProducts(products, filters),
-    [filters],
   )
 
   const updateFilters = useCallback(
@@ -47,7 +40,6 @@ export function useProductFilters() {
 
   return {
     filters,
-    filteredProducts,
     updateFilters,
     setFilter,
     clearFilters,

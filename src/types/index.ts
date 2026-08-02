@@ -2,3 +2,5 @@ export type { Product, ProductSpecification, ProductFeature, AvailabilityStatus 
 export type { ProductCategory } from './category'
 export type { Project, ProjectCategory, ProjectStatus, ClientVisibility } from './project'
 export type { Partner } from './partner'
+export type { CompanyProfile, CompanyValue } from './company'
+export type { Service } from './service'

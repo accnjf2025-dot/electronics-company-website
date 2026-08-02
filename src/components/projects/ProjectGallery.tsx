@@ -1,7 +1,7 @@
 import { useEffect, useState, type KeyboardEvent } from 'react'
 import { ChevronLeft, ChevronRight, X, ZoomIn } from 'lucide-react'
 import type { Project } from '@/types'
-import { pickLocalized, useTranslation } from '@/utils'
+import { pickProjectTitle, useTranslation } from '@/utils'
 import { ImageWithFallback } from '@/components/common'
 
 interface ProjectGalleryProps {
@@ -14,7 +14,7 @@ function isPlaceholderImage(src: string): boolean {
 
 export function ProjectGallery({ project }: ProjectGalleryProps) {
   const { t, locale } = useTranslation()
-  const title = pickLocalized(project, 'title', locale)
+  const title = pickProjectTitle(project, locale)
   const images = [...new Set([project.coverImage, ...project.gallery].filter(Boolean))]
   const [activeIndex, setActiveIndex] = useState(0)
   const [lightboxOpen, setLightboxOpen] = useState(false)
