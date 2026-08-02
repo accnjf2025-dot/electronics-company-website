@@ -7,21 +7,18 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
+from config.env import (
+    build_allowed_hosts,
+    build_csrf_trusted_origins,
+    env_bool,
+    is_railway_environment,
+    resolve_debug,
+)
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / '.env')
-
-
-def _env_bool(name: str, default: bool = False) -> bool:
-    value = os.getenv(name, '').strip().lower()
-    if not value:
-        return default
-    return value in ('true', '1', 'yes', 'on')
-
-
-def _env_list(name: str, default: str = '') -> list[str]:
-    raw = os.getenv(name, default)
-    return [item.strip() for item in raw.split(',') if item.strip()]
+if not is_railway_environment():
+    load_dotenv(BASE_DIR / '.env')
 
 
 def _resolve_data_dir() -> Path:
@@ -37,32 +34,18 @@ SECRET_KEY = os.getenv('SECRET_KEY') or os.getenv(
     'django-insecure-change-me-in-production',
 )
 
-if 'DJANGO_DEBUG' in os.environ:
-    DEBUG = _env_bool('DJANGO_DEBUG', True)
-else:
-    DEBUG = _env_bool('DEBUG', True)
+ON_RAILWAY = is_railway_environment()
+DEBUG = resolve_debug()
 
 RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
-RAILWAY_HEALTHCHECK_HOST = 'healthcheck.railway.app'
-ON_RAILWAY = bool(
-    os.getenv('RAILWAY_PUBLIC_DOMAIN')
-    or os.getenv('RAILWAY_ENVIRONMENT')
-    or os.getenv('RAILWAY_SERVICE_ID')
-    or os.getenv('RAILWAY_VOLUME_MOUNT_PATH')
+ALLOWED_HOSTS = build_allowed_hosts(
+    debug=DEBUG,
+    on_railway=ON_RAILWAY,
+    railway_public_domain=RAILWAY_PUBLIC_DOMAIN,
 )
-
-_default_hosts = 'localhost,127.0.0.1' if DEBUG else ''
-_allowed_hosts = _env_list('ALLOWED_HOSTS') or _env_list('DJANGO_ALLOWED_HOSTS', _default_hosts)
-if RAILWAY_PUBLIC_DOMAIN and RAILWAY_PUBLIC_DOMAIN not in _allowed_hosts:
-    _allowed_hosts.append(RAILWAY_PUBLIC_DOMAIN)
-if (not DEBUG or ON_RAILWAY) and RAILWAY_HEALTHCHECK_HOST not in _allowed_hosts:
-    _allowed_hosts.append(RAILWAY_HEALTHCHECK_HOST)
-ALLOWED_HOSTS = list(dict.fromkeys(_allowed_hosts))
-
-_csrf_origins = _env_list('CSRF_TRUSTED_ORIGINS')
-if RAILWAY_PUBLIC_DOMAIN:
-    _csrf_origins.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
-CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(_csrf_origins))
+CSRF_TRUSTED_ORIGINS = build_csrf_trusted_origins(
+    railway_public_domain=RAILWAY_PUBLIC_DOMAIN,
+)
 
 DATA_DIR = _resolve_data_dir()
 FRONTEND_DIST = Path(os.getenv('FRONTEND_DIST', str(BASE_DIR.parent / 'frontend_dist')))
@@ -197,6 +180,6 @@ if not DEBUG:
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
     SECURE_REFERRER_POLICY = 'same-origin'
-    SECURE_SSL_REDIRECT = _env_bool('SECURE_SSL_REDIRECT', False)
+    SECURE_SSL_REDIRECT = env_bool('SECURE_SSL_REDIRECT', False)
     if SECURE_SSL_REDIRECT:
         SECURE_REDIRECT_EXEMPT = [r'^api/v1/health/$']
