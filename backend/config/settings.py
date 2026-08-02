@@ -43,11 +43,20 @@ else:
     DEBUG = _env_bool('DEBUG', True)
 
 RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
+RAILWAY_HEALTHCHECK_HOST = 'healthcheck.railway.app'
+ON_RAILWAY = bool(
+    os.getenv('RAILWAY_PUBLIC_DOMAIN')
+    or os.getenv('RAILWAY_ENVIRONMENT')
+    or os.getenv('RAILWAY_SERVICE_ID')
+    or os.getenv('RAILWAY_VOLUME_MOUNT_PATH')
+)
 
 _default_hosts = 'localhost,127.0.0.1' if DEBUG else ''
 _allowed_hosts = _env_list('ALLOWED_HOSTS') or _env_list('DJANGO_ALLOWED_HOSTS', _default_hosts)
 if RAILWAY_PUBLIC_DOMAIN and RAILWAY_PUBLIC_DOMAIN not in _allowed_hosts:
     _allowed_hosts.append(RAILWAY_PUBLIC_DOMAIN)
+if (not DEBUG or ON_RAILWAY) and RAILWAY_HEALTHCHECK_HOST not in _allowed_hosts:
+    _allowed_hosts.append(RAILWAY_HEALTHCHECK_HOST)
 ALLOWED_HOSTS = list(dict.fromkeys(_allowed_hosts))
 
 _csrf_origins = _env_list('CSRF_TRUSTED_ORIGINS')
@@ -189,3 +198,5 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
     SECURE_REFERRER_POLICY = 'same-origin'
     SECURE_SSL_REDIRECT = _env_bool('SECURE_SSL_REDIRECT', False)
+    if SECURE_SSL_REDIRECT:
+        SECURE_REDIRECT_EXEMPT = [r'^api/v1/health/$']
