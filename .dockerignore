@@ -1,0 +1,56 @@
+.git
+.gitignore
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Python
+backend/.venv
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info
+.eggs
+.pytest_cache
+.mypy_cache
+.ruff_cache
+htmlcov
+.coverage
+.coverage.*
+coverage.xml
+*.cover
+.hypothesis
+
+# Node / frontend build artifacts
+node_modules
+dist
+dist-ssr
+*.local
+
+# Local Django data (production uses Railway Volume at runtime)
+backend/db.sqlite3
+backend/media
+backend/staticfiles
+logs
+*.log
+
+# Editor and OS
+.vscode
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Documentation not needed in image
+DEPLOY_RAILWAY_SIMPLE.md
+backend/README.md

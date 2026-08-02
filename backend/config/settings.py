@@ -11,15 +11,52 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-change-me-in-production')
 
-DEBUG = os.getenv('DJANGO_DEBUG', 'True').lower() in ('true', '1', 'yes')
+def _env_bool(name: str, default: bool = False) -> bool:
+    value = os.getenv(name, '').strip().lower()
+    if not value:
+        return default
+    return value in ('true', '1', 'yes', 'on')
 
-ALLOWED_HOSTS = [
-    host.strip()
-    for host in os.getenv('DJANGO_ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
-    if host.strip()
-]
+
+def _env_list(name: str, default: str = '') -> list[str]:
+    raw = os.getenv(name, default)
+    return [item.strip() for item in raw.split(',') if item.strip()]
+
+
+def _resolve_data_dir() -> Path:
+    for key in ('RAILWAY_VOLUME_MOUNT_PATH', 'DATA_DIR'):
+        value = os.getenv(key, '').strip()
+        if value:
+            return Path(value)
+    return BASE_DIR
+
+
+SECRET_KEY = os.getenv('SECRET_KEY') or os.getenv(
+    'DJANGO_SECRET_KEY',
+    'django-insecure-change-me-in-production',
+)
+
+if 'DJANGO_DEBUG' in os.environ:
+    DEBUG = _env_bool('DJANGO_DEBUG', True)
+else:
+    DEBUG = _env_bool('DEBUG', True)
+
+RAILWAY_PUBLIC_DOMAIN = os.getenv('RAILWAY_PUBLIC_DOMAIN', '').strip()
+
+_default_hosts = 'localhost,127.0.0.1' if DEBUG else ''
+_allowed_hosts = _env_list('ALLOWED_HOSTS') or _env_list('DJANGO_ALLOWED_HOSTS', _default_hosts)
+if RAILWAY_PUBLIC_DOMAIN and RAILWAY_PUBLIC_DOMAIN not in _allowed_hosts:
+    _allowed_hosts.append(RAILWAY_PUBLIC_DOMAIN)
+ALLOWED_HOSTS = list(dict.fromkeys(_allowed_hosts))
+
+_csrf_origins = _env_list('CSRF_TRUSTED_ORIGINS')
+if RAILWAY_PUBLIC_DOMAIN:
+    _csrf_origins.append(f'https://{RAILWAY_PUBLIC_DOMAIN}')
+CSRF_TRUSTED_ORIGINS = list(dict.fromkeys(_csrf_origins))
+
+DATA_DIR = _resolve_data_dir()
+FRONTEND_DIST = Path(os.getenv('FRONTEND_DIST', str(BASE_DIR.parent / 'frontend_dist')))
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -38,6 +75,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
@@ -85,7 +123,7 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / os.getenv('DATABASE_NAME', 'db.sqlite3'),
+            'NAME': DATA_DIR / os.getenv('DATABASE_NAME', 'db.sqlite3'),
         }
     }
 
@@ -106,20 +144,26 @@ LANGUAGES = [
     ('ar', 'Arabic'),
 ]
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    'default': {
+        'BACKEND': 'django.core.files.storage.FileSystemStorage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = DATA_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+_default_cors = 'http://localhost:5173,http://localhost:5174,http://127.0.0.1:5173,http://127.0.0.1:5174'
 CORS_ALLOWED_ORIGINS = [
     origin.strip()
-    for origin in os.getenv(
-        'CORS_ALLOWED_ORIGINS',
-        'http://localhost:5173,http://localhost:5174',
-    ).split(',')
+    for origin in os.getenv('CORS_ALLOWED_ORIGINS', _default_cors if DEBUG else '').split(',')
     if origin.strip()
 ]
 
@@ -136,3 +180,12 @@ REST_FRAMEWORK = {
         'rest_framework.renderers.BrowsableAPIRenderer',
     ],
 }
+
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+    SECURE_REFERRER_POLICY = 'same-origin'
+    SECURE_SSL_REDIRECT = _env_bool('SECURE_SSL_REDIRECT', False)
