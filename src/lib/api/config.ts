@@ -7,10 +7,13 @@ function trimTrailingSlash(value: string): string {
 export function getApiBaseUrl(): string {
   const configured = import.meta.env.VITE_API_BASE_URL?.trim()
   if (configured) return trimTrailingSlash(configured)
-  if (import.meta.env.DEV) return DEV_FALLBACK_BASE
-  return ''
-}
 
+  if (import.meta.env.DEV) {
+    return DEV_FALLBACK_BASE
+  }
+
+  return `${window.location.origin}/api/v1`
+}
 export function getApiOrigin(): string {
   const base = getApiBaseUrl()
   if (!base) return ''
